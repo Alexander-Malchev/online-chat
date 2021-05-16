@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <script src="enter.js"></script>
+</head>
+<style>
+    * {
+        font-family: Arial, Helvetica, sans-serif;
+        color: white;
+    }
+    body{
+        background-color: rgb(78, 78, 78);
+        overflow: hidden;
+    }
+    input{
+        color: gray;
+        padding: 10px;
+        width: 500px;
+        border: 1px solid black;
+        margin: 10px 0px;
+    }
+    a {
+        text-decoration: none;
+        color: green;
+    }
+    button {
+        width: 525px;
+        padding: 10px;
+        color: White;
+        background-color: rgb(0, 165, 0);
+        border: none;
+        cursor: pointer;
+        margin: 10px 0;
+    }
+</style>
+<body>
+    <h2>Register</h2>
+    <div>
+        <input type="text" id="username" placeholder="Enter username..."><br>
+        <input type="password" id="password" placeholder="Enter password..."><br>
+        <button onclick="submit()">Register</button><br>
+        <span>If you already have an account. <a href="/login">Login</a></span>
+    </div>
+</body>
+</html>

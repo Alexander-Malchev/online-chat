@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Room</title>
+</head>
+<style>
+    *{
+        font-family: Arial, Helvetica, sans-serif;
+        color: white;
+    }
+    body{
+        background-color: rgb(78, 78, 78);
+        overflow: hidden;
+    }
+    .chat{
+        height: 590px;
+        overflow-y: scroll; 
+        overflow-x: auto;
+    }
+    #chat {
+        list-style: none;
+    }
+    #chat li {
+        border: 2px solid rgb(43, 43, 43);;
+        background-color: #f1f1f1;
+        border-radius: 5px;
+        padding: 10px;
+        width: 90%;
+        margin: 10px 0;
+        background-color: rgb(43, 43, 43);
+        color: white;
+        /* overflow: -moz-hidden-unscrollable; */
+        overflow: hidden;
+    }
+    #chat li #date {
+        width: 100%;
+        text-align: right;
+        color: gray;
+    }
+    #chat li #name {
+        width: 100%;
+        color: gray;
+    }
+    #message{
+        position: absolute;
+        top: 80%;
+        left: 50px;
+    }
+    #msg {
+        padding: 20px 100px;
+        color: rgb(116, 116, 116);
+        border: 1px solid gray;
+        border-radius: 0px;
+        color: white;
+        background-color: rgb(43, 43, 43);
+    }
+    button{
+        padding: 20px 50px;
+        border: 1px solid gray;
+        border-radius: 0px;
+        color: white;
+        background-color: rgb(43, 43, 43);
+    }
+    #m {
+        width: 100%;
+        text-align: center;
+        color: rgb(255, 255, 255);
+        font-size: 20px;
+    }
+    #del {
+        background-color: red;
+        padding: 5px 10px;
+        cursor: pointer;
+        border: none;
+        float: right;
+    }
+    table {
+        width: 100%;
+        align-items: center;
+    }
+    
+</style>
+<body>
+    <div class="chat">
+        <ul id="chat">
+        </ul>
+    </div>
+    <div id="message">
+        <input type="text" id="msg" placeholder="Enter message...">
+        <button onclick="Send()">Send</button>
+        <p id="inv">Invite link: http://46.249.84.111:8080/invite/</p>
+    </div>
+    <script>
+        var room;
+        function makeGET(URL, callback) {
+            fetch(URL)
+             .then(response => response.text())
+             .then(text => callback(text))
+             .catch(err => console.log(`${URL} not found.`))
+        }
+
+        function Message(author, value, date, del, id) {
+            var li = document.createElement('li')
+            var table = document.createElement('table')
+            var tbody = document.createElement('tbody')
+            var tr = document.createElement('tr')
+            var t = [document.createElement('td'), document.createElement('td')]
+            var p = document.createElement('span')
+            var h2 = document.createElement('span')
+            var h5 = document.createElement('span')
+            var pre = document.createElement("pre")
+            var arr = value.match(/.{1,144}/g).join("\n")
+            var deleteb = del > -1 ? document.createElement("button") : undefined
+            
+            pre.innerHTML = value
+            p.innerHTML =  arr + "  ";
+            p.id = "m"
+            h2.innerHTML = author + ":  "
+            h2.id = "name"
+            h5.innerHTML = date;
+            h5.id = "date"
+            t[0].appendChild(p)
+            t[0].appendChild(h2)
+            t[0].appendChild(h5)
+            tr.appendChild(t[0])
+            // h5.innerHTML = `${date.getHours()}:${date.getMinutes()}`
+            if ( del > -1 ) {
+                deleteb.innerHTML = "Delete";
+                deleteb.setAttribute("onClick",`makeGET('${window.location.href}/delete/message/${JSON.parse(window.localStorage.user).id}/${id}', (res) => fetchs())`)
+                deleteb.id = "del"
+            
+                t[1].appendChild(deleteb)
+                tr.appendChild(t[1])
+            }
+            tbody.appendChild(tr)
+            table.appendChild(tbody)
+            li.appendChild(table)
+            document.getElementById('chat').appendChild(li)
+        }
+        document.addEventListener("keydown", ( e) => {
+            if ( e.keyCode === 13 ) {
+                Send()
+            }
+        })
+        function Send() {
+            var value = document.getElementById("msg").value;
+            var name = JSON.parse(window.localStorage.user).name;
+            var id = JSON.parse(window.localStorage.user).id
+
+            document.getElementById("msg").value = "";
+            if ( value !== "" ) {  
+                makeGET(`${window.location.href}/new/message/${name}/${id}/${value}`, (res) => {
+                    console.log("Message sent!")
+                })
+                fetchs()
+            } else { 
+                alert("You need to enter message first")
+            }
+        }
+
+        function fetchs() {
+            makeGET(window.location.href + "/get", ( res ) => {
+                // if ( JSON.parse(res).messages.length > room.messages.length ) {
+                //     room = JSON.parse(res)
+                //     Message(room.messages[ room.messages.length - 1 ].author, room.messages[ room.messages.length - 1 ].value, room.messages[ room.messages.length - 1 ].date, room.messages[ room.messages.length - 1 ].delete.indexOf(JSON.parse(window.localStorage.user).id), room.messages[ room.messages.length - 1 ].id)
+                // }
+                document.getElementById('chat').innerHTML = "";
+                room = JSON.parse(res)
+                if ( room ) {
+                    for ( let i = 0; i < room.messages.length; i ++ ) {
+                        Message(room.messages[ i ].author, room.messages[ i ].value, room.messages[ i ].date, room.messages[ i ].delete.indexOf(JSON.parse(window.localStorage.user).id), room.messages[ i ].id)        
+                    }
+                }
+            })
+        }
+        window.onload = () => {
+            makeGET(window.location.href + "/get", ( res ) => {
+                room = JSON.parse(res)
+                if ( room ) {
+                    document.getElementById("inv").innerHTML += room.id;
+                    for ( let i = 0; i < room.messages.length; i ++ ) {
+                        Message(room.messages[ i ].author, room.messages[ i ].value, room.messages[ i ].date, room.messages[ i ].delete.indexOf(JSON.parse(window.localStorage.user).id), room.messages[ i ].id)        
+                    }
+                }
+            })
+        }
+        setInterval(fetchs, 1000)
+    </script>
+</body>
+</html>

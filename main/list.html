@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>list of your rooms</title>
+</head>
+<style>
+    * {
+        font-family: Arial, Helvetica, sans-serif;
+    }
+    body{
+        background-color: rgb(78, 78, 78);
+        overflow: hidden;
+    }
+    ul {
+        list-style: none;
+        margin: 0px -50px;
+    }
+    li {
+        width: 100%;
+        padding: 10px;
+        text-align: center;
+        background-color: rgb(99, 99, 99);
+        cursor: pointer;
+    }
+    li:nth-child(odd){
+        background-color: rgb(49, 49, 49);
+    }
+    li:hover{
+        background-color: rgba(99, 99, 99, 0.8);
+    }
+    li:nth-child(odd):hover{
+        background-color: rgba(49, 49, 49, 0.8);   
+    }
+    a{
+        text-decoration: none;
+        color: white;
+        width: 100%;
+    }
+    input{
+        padding: 10px 20px;
+        color: gray;
+        border: 1px solid gray;
+        border-radius: 0;
+    }
+    button{
+        padding: 10px;
+        border: 1px solid gray;
+        border-radius: 0;
+        cursor: pointer;
+        color: white;
+        background-color: rgb(49, 49, 49);
+    }
+    h2 {
+        text-align: center;
+        color: white;
+    }
+</style>
+<body>
+    <input type="text" placeholder="Create room" id="add">
+    <button onclick="add()">Create</button>
+    <p></p>
+    <ul id="list">
+    </ul>
+    <script>
+        function makeGET(URL, callback) {
+            fetch(URL)
+             .then(response => response.text())
+             .then(text => callback(text))
+             .catch(err => console.log(`${URL} not found.`))
+        }
+        function add () {
+            var name = document.getElementById("add").value
+
+            if ( name !== "" ) {
+                makeGET(window.location.href.replace("list", `new/room/${name}/${JSON.parse(window.localStorage.user).id}`), (res) => {
+                    const room = JSON.parse(res)
+                    var user = JSON.parse(window.localStorage.user)
+                    user.rooms.push({name: room.name, id: room.id})
+                    window.localStorage.user = JSON.stringify(user)
+                    window.location.reload()
+                })
+            } else {
+                alert("Can't create room with no name.")
+            }
+        }
+        function addElement(value, name) {
+            var li = document.createElement("li")
+            var a = document.createElement('a')
+            a.href = `/room/${value}`
+            a.innerHTML = name;
+            li.appendChild(a)
+            document.getElementById("list").appendChild(li)
+        }
+
+        const user = JSON.parse(window.localStorage.user)
+        for ( let i = 0; i < user.rooms.length; i ++ ) {
+            addElement(user.rooms[i].id, user.rooms[i].name)
+        }
+    </script>
+</body>
+</html>

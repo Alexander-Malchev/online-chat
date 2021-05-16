@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>You are invited to a new room</title>
+</head>
+<style>
+    * {
+        font-family: Arial, Helvetica, sans-serif;
+        color: white;
+    }
+    body{
+        background-color: rgb(78, 78, 78);
+        overflow: hidden;
+    }
+    button{
+        background-color: green;
+        padding: 20px 40px;
+        font-size: 30px;
+        width: 50%;
+        border: none;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -100%);
+        cursor: pointer;
+    }
+    h1{
+        position: absolute;
+        top: 10%;
+        text-align: center;
+        width: 100%;
+        font-size: 50px;
+    }
+    button:hover{
+        background-color: rgba(0, 128, 0, 0.726);
+    }
+</style>
+<body>
+    <h1>You were invited to join the <b id="name">ASDasdasd</b></h1>
+    <button onclick="enter()">Enter</button>
+    <script>
+        window.onload = function() {
+            makeGET(window.location.href + `/n`, (res) => {
+                document.getElementById("name").innerHTML = res;
+                console.log("Trying to get name")
+            })
+        }
+        function makeGET(URL, callback) {
+            fetch(URL)
+             .then(response => response.text())
+             .then(text => callback(text))
+             .catch(err => console.log(`${URL} not found.`))
+        }
+        function enter() {
+            makeGET(window.location.href + `/i/${JSON.parse(window.localStorage.user).id}`, ( res ) => {
+                window.localStorage.user = res
+                window.location.href = window.location.href.substr(0, window.location.href.indexOf('/invite')) + "/list"
+            })  
+        }
+    </script>
+</body>
+</html>
